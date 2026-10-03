@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171a25">
+  <title>Chocolate → HX Stomp | MIDI Bridge</title>
+  <style>
+    :root{color-scheme:dark;--bg:#10121a;--surface:#1b1e2a;--surface2:#232737;--text:#f1f0fa;--muted:#b8b8c9;--line:#393d50;--primary:#c7c0ff;--onprimary:#211d3b;--green:#79e2b0;--yellow:#ffd27b;--red:#ff9c9c;--radius:24px}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 90% -10%,#403863 0,transparent 42%),radial-gradient(ellipse at 0 40%,#153a3c 0,transparent 38%),var(--bg);color:var(--text);font:16px/1.48 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+    .wrap{width:min(960px,100%);margin:auto;padding:24px 18px 52px}.hero{padding:20px 4px 18px}.eyebrow{font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;color:var(--primary);font-weight:750}.hero h1{font-size:clamp(2rem,7vw,3.6rem);line-height:1.03;letter-spacing:-.045em;margin:.45rem 0}.hero p{color:var(--muted);max-width:680px;margin:.8rem 0 0}.route{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px;font-weight:700}.chip{border:1px solid #ffffff20;background:#ffffff0d;padding:8px 13px;border-radius:99px}.arrow{color:var(--primary);font-size:1.3rem}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.card{background:linear-gradient(145deg,#ffffff0d,#ffffff05);border:1px solid #ffffff19;border-radius:var(--radius);padding:20px;box-shadow:0 16px 40px #0002;backdrop-filter:blur(16px)}.card h2{font-size:1.15rem;margin:0 0 14px}.wide{grid-column:1/-1}.status-list{display:grid;gap:10px}.status{display:flex;align-items:center;gap:11px;color:var(--muted);font-size:.94rem}.dot{width:11px;height:11px;border-radius:50%;background:#646878;box-shadow:0 0 0 4px #64687820;flex:none}.dot.ok{background:var(--green);box-shadow:0 0 0 4px #79e2b022}.dot.warn{background:var(--yellow);box-shadow:0 0 0 4px #ffd27b22}.dot.bad{background:var(--red);box-shadow:0 0 0 4px #ff9c9c22}.status strong{color:var(--text)}
+    label{display:block;font-weight:650;font-size:.9rem;margin:13px 0 6px}select{width:100%;border:1px solid var(--line);background:#151824;color:var(--text);padding:13px 42px 13px 14px;border-radius:14px;font:inherit;min-height:50px}select:focus,button:focus-visible,a:focus-visible{outline:3px solid var(--primary);outline-offset:2px}.hint{font-size:.82rem;color:var(--muted);margin:8px 1px 0}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button,.linkbtn{border:0;border-radius:999px;padding:12px 18px;font:700 .95rem system-ui;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:46px}.primary{background:var(--primary);color:var(--onprimary)}.secondary{background:#ffffff12;color:var(--text);border:1px solid #ffffff24}.secondary:disabled{opacity:.45;cursor:default}.smallbtn{min-height:38px;padding:8px 13px;font-size:.85rem}.diag{border-radius:16px;padding:14px 15px;background:#ffffff09;border:1px solid #ffffff17;color:var(--muted);font-size:.9rem}.diag strong{color:var(--text)}.diag.error{border-color:#ff9c9c66}.diag.success{border-color:#79e2b066}.meters{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.meter{background:#ffffff0b;border:1px solid #ffffff14;border-radius:16px;padding:10px 14px;min-width:110px}.meter b{font-size:1.35rem;display:block}.meter span{color:var(--muted);font-size:.8rem}.monitor-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.monitor{height:260px;overflow:auto;background:#0c0e15;border:1px solid #ffffff17;border-radius:16px;padding:10px;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}.event{display:grid;grid-template-columns:75px 42px 1fr;gap:8px;padding:4px 5px;border-bottom:1px solid #ffffff0b}.event .time{color:#9699ad}.event .dir{font-weight:800}.rx{color:#80dcb1}.tx{color:#c7c0ff}.bytes{color:#f0eff8;overflow-wrap:anywhere}.empty{color:#85889c;padding:9px}.steps{margin:0;padding-left:1.25rem;color:var(--muted)}.steps li{padding:3px 0}.note{border-left:3px solid var(--yellow);padding:8px 0 8px 13px;margin:14px 0 0;color:var(--muted);font-size:.88rem}.footer{color:#9295a8;font-size:.78rem;text-align:center;padding:20px 4px}.inline{color:var(--primary)}
+    @media(max-width:700px){.wrap{padding:14px 13px 32px}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.card{padding:17px}.monitor{height:230px}.hero{padding-top:17px}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Herramienta de prueba MIDI</div>
+    <h1>Chocolate <span style="color:var(--primary)">→</span> HX Stomp</h1>
+    <p>Puente MIDI transparente en el navegador: reenvía cada mensaje recibido sin cambiar sus bytes. La compatibilidad depende de que Android y el navegador expongan ambos equipos como puertos MIDI.</p>
+    <div class="route"><span class="chip">M‑VAVE Chocolate Plus · MIDI IN</span><span class="arrow">→</span><span class="chip">Line 6 HX Stomp · MIDI OUT</span></div>
+  </header>
+  <div class="grid">
+    <section class="card">
+      <h2>Conexión</h2>
+      <div class="status-list">
+        <div class="status"><i class="dot" id="apiDot"></i><span id="apiStatus">Comprobando Web MIDI…</span></div>
+        <div class="status"><i class="dot" id="bridgeDot"></i><span id="bridgeStatus">Puente desconectado</span></div>
+      </div>
+      <label for="inputSelect">Entrada MIDI · Chocolate Plus</label><select id="inputSelect" aria-label="Entrada MIDI"><option value="">Solicita acceso MIDI para enumerar</option></select>
+      <label for="outputSelect">Salida MIDI · HX Stomp</label><select id="outputSelect" aria-label="Salida MIDI"><option value="">Solicita acceso MIDI para enumerar</option></select>
+      <p class="hint" id="selectionHint">Los dispositivos sugeridos se seleccionan por nombre; puedes cambiarlos manualmente.</p>
+      <div class="buttons"><button class="primary" id="connectBtn">Solicitar acceso MIDI</button><button class="secondary" id="disconnectBtn" disabled>Desconectar</button><button class="secondary" id="wakeBtn" aria-pressed="false">Mantener pantalla activa: no</button></div>
+    </section>
+    <section class="card">
+      <h2>Diagnóstico</h2>
+      <div class="diag" id="diagnostic" role="status" aria-live="polite"><strong>Preparando diagnóstico.</strong> Esta página comprobará si Web MIDI está disponible en este navegador.</div>
+      <p class="hint" style="margin-top:13px">Se solicita acceso MIDI estándar, sin SysEx. Si no aparece un equipo en las listas, el navegador no lo está ofreciendo como puerto MIDI.</p>
+      <p class="hint">No se emula HID/BLE ni se transforma el protocolo: esta página solo puede usar puertos entregados por Web MIDI.</p>
+    </section>
+    <section class="card wide">
+      <div class="monitor-head"><h2 style="margin:0">Monitor de mensajes</h2><button class="secondary smallbtn" id="clearBtn">Limpiar monitor</button></div>
+      <div class="meters"><div class="meter"><b id="rxCount">0</b><span>Mensajes recibidos</span></div><div class="meter"><b id="txCount">0</b><span>Mensajes enviados</span></div><div class="meter"><b id="errCount">0</b><span>Errores de envío</span></div></div>
+      <div class="monitor" id="monitor" aria-live="polite"><div class="empty">Los mensajes MIDI aparecerán aquí cuando conectes una entrada.</div></div>
+    </section>
+    <section class="card wide">
+      <h2>Conexión y prueba</h2>
+      <ol class="steps"><li>Conecta el <strong>Galaxy S24 → adaptador USB‑C OTG → cable USB‑A a USB‑B → HX Stomp</strong>.</li><li>Enciende la HX Stomp. Conecta el Chocolate Plus al teléfono por USB si funciona como MIDI USB; si es Bluetooth, emparejarlo no garantiza que Chrome lo exponga como MIDI.</li><li>Abre esta página en un navegador Android compatible y con permiso MIDI. Pulsa <strong>Solicitar acceso MIDI</strong>, revisa el diagnóstico y elige manualmente la entrada y salida si hace falta.</li><li>Pulsa <strong>Conectar puente</strong> y acciona un pedal. Deben aumentar RX y TX; confirma que la HX Stomp responde según su asignación MIDI.</li></ol>
+      <p class="note">La pantalla activa ayuda durante una prueba corta, pero una página web puede quedar suspendida o dejar de ejecutarse al bloquear el teléfono. Para uso fiable en concierto puede hacer falta una app nativa.</p>
+      <div class="buttons"><a class="linkbtn secondary smallbtn" href="#" id="downloadBtn" download="index.html">Descargar esta página</a></div>
+    </section>
+  </div>
+  <footer class="footer">Autocontenida · Sin librerías externas · Requiere un contexto seguro (HTTPS; localhost también puede servir)</footer>
+</main>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id), inputSel=$('inputSelect'), outputSel=$('outputSelect');
+  let access=null, activeInput=null, activeOutput=null, connected=false, wakeLock=null, rx=0, tx=0, errors=0, stateHandler=null;
+  const names={input:/foot\s*ctrl\s*plus|chocolate|m[- ]?vave/i,output:/hx\s*stomp|line\s*6/i};
+  function dot(id,kind){$(id).className='dot'+(kind?' '+kind:'')}
+  function diagnostic(kind,title,body){const e=$('diagnostic');e.className='diag'+(kind?' '+kind:'');e.innerHTML='<strong></strong> '+body;e.querySelector('strong').textContent=title}
+  function apiUnavailable(){dot('apiDot','bad');$('apiStatus').textContent='Web MIDI no está disponible';diagnostic('error','Web MIDI no disponible.','Este navegador o contexto no ofrece <code>navigator.requestMIDIAccess</code>. Prueba Chrome actualizado en Android y sirve la página por HTTPS. Sin Web MIDI no es posible crear este puente desde esta página.')}
+  function markStatus(){
+    const i=activeInput&&access?.inputs.get(activeInput.id), o=activeOutput&&access?.outputs.get(activeOutput.id);
+    if(connected&&i&&o&&i.state==='connected'&&o.state==='connected'){dot('bridgeDot','ok');$('bridgeStatus').textContent='Puente conectado · '+i.name+' → '+o.name;return}
+    if(connected){stopBridge();diagnostic('error','Conexión interrumpida.','Uno de los dispositivos se desconectó. Vuelve a conectarlo, revisa las listas y pulsa conectar de nuevo.')}
+    dot('bridgeDot','');$('bridgeStatus').textContent='Puente desconectado';
+  }
+  function listPorts(select,ports,preferred,kind){
+    const previous=select.value;select.replaceChildren();
+    const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=ports.length?'Selecciona un puerto…':'No se encontraron puertos';select.append(placeholder);
+    for(const p of ports){const op=document.createElement('option');op.value=p.id;op.textContent=(p.name||'Puerto MIDI sin nombre')+(p.manufacturer?' · '+p.manufacturer:'')+(p.state==='disconnected'?' (desconectado)':'');select.append(op)}
+    const match=ports.find(p=>preferred.test((p.name||'')+' '+(p.manufacturer||''))&&p.state==='connected');
+    if(ports.some(p=>p.id===previous))select.value=previous;else if(match)select.value=match.id;
+    if(kind==='input')activeInput=access?.inputs.get(select.value)||null;else activeOutput=access?.outputs.get(select.value)||null;
+  }
+  function refresh(){if(!access)return;listPorts(inputSel,[...access.inputs.values()],names.input,'input');listPorts(outputSel,[...access.outputs.values()],names.output,'output');if(connected){activeInput=access.inputs.get(inputSel.value)||null;activeOutput=access.outputs.get(outputSel.value)||null}markStatus()}
+  function addEvent(direction,data,time){
+    const monitor=$('monitor');if(monitor.querySelector('.empty'))monitor.replaceChildren();
+    const row=document.createElement('div');row.className='event';const t=document.createElement('span');t.className='time';t.textContent=new Date(time||Date.now()).toLocaleTimeString();const d=document.createElement('span');d.className='dir '+direction.toLowerCase();d.textContent=direction;const b=document.createElement('span');b.className='bytes';b.textContent=Array.from(data,x=>Number(x).toString(16).padStart(2,'0').toUpperCase()).join(' ');row.append(t,d,b);monitor.append(row);while(monitor.children.length>250)monitor.firstChild.remove();monitor.scrollTop=monitor.scrollHeight
+  }
+  function updateCounts(){$('rxCount').textContent=rx;$('txCount').textContent=tx;$('errCount').textContent=errors}
+  function onMIDIMessage(event){rx++;updateCounts();addEvent('RX',event.data,event.receivedTime);if(connected&&activeOutput){try{activeOutput.send(event.data);tx++;addEvent('TX',event.data,performance.now())}catch(e){errors++;diagnostic('error','Error al enviar MIDI.','No se pudo enviar el mensaje a la salida seleccionada: '+(e?.message||e));}updateCounts()}}
+  function stopBridge(){if(activeInput)activeInput.onmidimessage=null;connected=false;activeInput=null;activeOutput=null;$('disconnectBtn').disabled=true;$('connectBtn').disabled=!access;$('connectBtn').textContent=access?'Conectar puente':'Solicitar acceso MIDI';dot('bridgeDot','');$('bridgeStatus').textContent='Puente desconectado'}
+  function startBridge(){const i=access?.inputs.get(inputSel.value),o=access?.outputs.get(outputSel.value);if(!i||!o){diagnostic('error','Selecciona los dos puertos.','Elige una entrada MIDI de Chocolate Plus y una salida MIDI de HX Stomp.');return}if(i.state!=='connected'||o.state!=='connected'){diagnostic('error','Puerto no conectado.','Ambos dispositivos deben estar conectados antes de activar el puente.');return}if(i.id===o.id){diagnostic('error','Selecciona puertos distintos.','La entrada y salida seleccionadas parecen ser el mismo puerto.');return}activeInput=i;activeOutput=o;activeInput.onmidimessage=onMIDIMessage;connected=true;$('disconnectBtn').disabled=false;$('connectBtn').textContent='Puente conectado';$('connectBtn').disabled=true;dot('bridgeDot','ok');$('bridgeStatus').textContent='Puente conectado · '+i.name+' → '+o.name;diagnostic('success','Puente listo.','Los mensajes MIDI de la entrada se envían sin modificar a la salida. RX y TX cuentan mensajes, no bytes.')}
+  async function requestAccess(){if(!navigator.requestMIDIAccess){apiUnavailable();return}try{access=await navigator.requestMIDIAccess();dot('apiDot','ok');$('apiStatus').textContent='Web MIDI disponible · acceso concedido';$('connectBtn').textContent='Conectar puente';$('connectBtn').disabled=false;diagnostic('success','Acceso MIDI concedido.','Revisa las listas de entrada y salida. Los equipos detectados por nombre se sugieren automáticamente; puedes cambiar la selección.');refresh();if(stateHandler)access.removeEventListener('statechange',stateHandler);stateHandler=()=>{refresh();if(connected)markStatus()};access.addEventListener('statechange',stateHandler)}catch(e){dot('apiDot','bad');$('apiStatus').textContent='Solicitud MIDI bloqueada o fallida';const name=e?.name||'Error',detail=(e?.message||'sin detalle del navegador').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let advice='';if(name==='NotAllowedError'||name==='PermissionDeniedError')advice='Chrome no concedió el permiso. Abre esta página directamente en Chrome (no dentro de otra app), toca el icono junto a la dirección → Permisos del sitio → MIDI y elige Permitir; después recarga la página.';else if(name==='SecurityError')advice='El navegador bloqueó MIDI por el contexto de seguridad o la política del sitio. Publica/abre esta página con HTTPS y prueba en una pestaña normal de Chrome.';else if(name==='NotSupportedError')advice='Este navegador o esta versión no ofrece MIDI en este contexto. Actualiza Chrome y vuelve a abrir la página directamente en Chrome.';else advice='Prueba esta página desde una URL HTTPS en una pestaña normal de Chrome y revisa los permisos MIDI del sitio.';diagnostic('error','No se obtuvo acceso MIDI ('+name+').',advice+' Detalle informado por el navegador: '+detail)}}
+  $('connectBtn').addEventListener('click',()=>access?startBridge():requestAccess());$('disconnectBtn').addEventListener('click',()=>{stopBridge();diagnostic('','Puente desconectado.','La entrada ya no se reenvía. El acceso MIDI sigue disponible para volver a conectar.')});
+  inputSel.addEventListener('change',()=>{if(connected)stopBridge();activeInput=access?.inputs.get(inputSel.value)||null});outputSel.addEventListener('change',()=>{if(connected)stopBridge();activeOutput=access?.outputs.get(outputSel.value)||null});
+  $('clearBtn').addEventListener('click',()=>{$('monitor').innerHTML='<div class="empty">Monitor limpio. Los próximos mensajes aparecerán aquí.</div>';rx=tx=errors=0;updateCounts()});
+  $('wakeBtn').addEventListener('click',async()=>{if(!('wakeLock'in navigator)){diagnostic('error','Wake Lock no disponible.','Este navegador no ofrece la opción para mantener activa la pantalla.');return}try{if(wakeLock){await wakeLock.release();wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')}else{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')});$('wakeBtn').textContent='Mantener pantalla activa: sí';$('wakeBtn').setAttribute('aria-pressed','true')}}catch(e){diagnostic('error','No se pudo activar Wake Lock.','El navegador no permitió mantener activa la pantalla: '+(e?.message||e))}});
+  $('downloadBtn').addEventListener('click',e=>{e.preventDefault();const source='<!doctype html>\n'+document.documentElement.outerHTML;const url=URL.createObjectURL(new Blob([source],{type:'text/html;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='index.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)});
+  if(!navigator.requestMIDIAccess)apiUnavailable();else{dot('apiDot','warn');$('apiStatus').textContent='Web MIDI disponible; falta conceder acceso';diagnostic('','Listo para solicitar permiso.','Pulsa <strong>Solicitar acceso MIDI</strong> para pedir permiso y enumerar los puertos disponibles.')}
+})();
+</script>
+</body>
+</html>
