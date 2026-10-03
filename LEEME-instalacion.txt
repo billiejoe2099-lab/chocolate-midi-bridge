@@ -1,0 +1,22 @@
+INSTALAR LA APP EN CHROME ANDROID Y USARLA SIN CONEXIÓN
+
+1. Publica TODOS estos archivos juntos en la misma carpeta de GitHub Pages:
+   index.html, manifest.webmanifest, sw.js, icon.svg, icon-192.png e icon-512.png.
+   No abras el archivo index.html del disco para instalarlo; usa la dirección https://...github.io/...
+
+2. Espera a que GitHub Pages termine la publicación. En el S24, abre esa URL en Chrome,
+   deja cargar la página y espera unos segundos para que el service worker guarde los archivos.
+
+3. Recarga la página. Elige ⋮ > Instalar app (o usa el botón Instalar app si aparece).
+   Si Chrome todavía muestra la versión vieja, borra los datos de ese sitio en Chrome,
+   vuelve a abrir la misma URL y espera a que termine la descarga antes de instalar.
+
+4. Abre la app instalada mientras tienes conexión una vez para conceder el permiso MIDI.
+   Después puedes activar modo avión y abrirla desde el icono: la interfaz, la conexión BLE
+   de FootCtrlPlus y la salida USB MIDI a HX Stomp no requieren Internet en cada uso.
+
+5. Para actualizar en el futuro, reemplaza todos los archivos en GitHub Pages, abre la web
+   una vez con conexión y recárgala. Luego la versión actualizada quedará disponible offline.
+
+La app necesita Chrome, Bluetooth y acceso MIDI concedido. Modo offline significa que los
+archivos de la app se sirven desde el teléfono; Bluetooth y USB siguen siendo conexiones locales.

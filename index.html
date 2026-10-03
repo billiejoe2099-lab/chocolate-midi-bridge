@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#171a25">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <title>Chocolate → HX Stomp | MIDI Bridge</title>
   <style>
     :root{color-scheme:dark;--bg:#10121a;--surface:#1b1e2a;--surface2:#232737;--text:#f1f0fa;--muted:#b8b8c9;--line:#393d50;--primary:#c7c0ff;--onprimary:#211d3b;--green:#79e2b0;--yellow:#ffd27b;--red:#ff9c9c;--radius:24px}
@@ -35,7 +37,7 @@
       <label for="inputSelect">Entrada MIDI por USB (opcional si usas Bluetooth)</label><select id="inputSelect" aria-label="Entrada MIDI USB"><option value="">Solicita acceso MIDI para enumerar</option></select>
       <label for="outputSelect">Salida MIDI · HX Stomp</label><select id="outputSelect" aria-label="Salida MIDI"><option value="">Solicita acceso MIDI para enumerar</option></select>
       <p class="hint" id="selectionHint">Para USB, el navegador debe mostrar Chocolate Plus como entrada. Para Bluetooth, conéctalo con el botón dedicado de abajo.</p>
-      <div class="buttons"><button class="primary" id="connectBtn">Solicitar acceso MIDI</button><button class="secondary" id="bleBtn">Conectar Chocolate Plus por Bluetooth</button><button class="secondary" id="tunerBtn">Tuner</button><button class="secondary" id="disconnectBtn" disabled>Desconectar puente</button><button class="secondary" id="wakeBtn" aria-pressed="false">Mantener pantalla activa: no</button></div>
+      <div class="buttons"><button class="primary" id="connectBtn">Solicitar acceso MIDI</button><button class="secondary" id="bleBtn">Conectar Chocolate Plus por Bluetooth</button><button class="secondary" id="tunerBtn">Tuner</button><button class="secondary" id="installBtn" hidden>Instalar app</button><button class="secondary" id="disconnectBtn" disabled>Desconectar puente</button><button class="secondary" id="wakeBtn" aria-pressed="false">Mantener pantalla activa: no</button></div>
       <p class="hint">Tuner envía CC 68, valor 0, canal 1 (bytes MIDI: B0 44 00). En la HX Stomp, CC68 abre/cierra la pantalla del afinador.</p>
     </section>
     <section class="card">
@@ -61,7 +63,7 @@
 <script>
 (()=>{
   const $=id=>document.getElementById(id), inputSel=$('inputSelect'), outputSel=$('outputSelect');
-  let access=null, activeInput=null, activeOutput=null, connected=false, bridgeViaBluetooth=false, bleDevice=null, bleCharacteristic=null, bleReady=false, sysexBuffer=null, wakeLock=null, rx=0, tx=0, errors=0, stateHandler=null;
+  let access=null, activeInput=null, activeOutput=null, connected=false, bridgeViaBluetooth=false, bleDevice=null, bleCharacteristic=null, bleReady=false, sysexBuffer=null, wakeLock=null, installPrompt=null, rx=0, tx=0, errors=0, stateHandler=null;
   const BLE_MIDI_SERVICE='03b80e5a-ede8-4b33-a751-6ce34ec4c700', BLE_MIDI_CHARACTERISTIC='7772e5db-3868-4112-a1a9-f2669d106bf3';
   const names={input:/foot\s*ctrl\s*plus|chocolate|m[- ]?vave/i,output:/hx\s*stomp|line\s*6/i};
   function dot(id,kind){$(id).className='dot'+(kind?' '+kind:'')}
@@ -134,6 +136,9 @@
   $('connectBtn').addEventListener('click',()=>access?startBridge():requestAccess());$('bleBtn').addEventListener('click',()=>{if(bleDevice?.gatt?.connected){if(connected&&bridgeViaBluetooth)stopBridge();bleDevice.gatt.disconnect()}else connectChocolateBluetooth()});$('tunerBtn').addEventListener('click',sendTunerCC);$('disconnectBtn').addEventListener('click',()=>{stopBridge();diagnostic('','Puente desconectado.','La entrada ya no se reenvía. Los enlaces USB/Bluetooth siguen disponibles para volver a conectar el puente.')});
   inputSel.addEventListener('change',()=>{if(connected)stopBridge();activeInput=access?.inputs.get(inputSel.value)||null});outputSel.addEventListener('change',()=>{if(connected)stopBridge();activeOutput=access?.outputs.get(outputSel.value)||null});
   $('clearBtn').addEventListener('click',()=>{$('monitor').innerHTML='<div class="empty">Monitor limpio. Los próximos mensajes aparecerán aquí.</div>';rx=tx=errors=0;updateCounts()});
+  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;$('installBtn').hidden=false});
+  $('installBtn').addEventListener('click',async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').hidden=true});
+  window.addEventListener('appinstalled',()=>{$('installBtn').hidden=true;installPrompt=null});
   $('wakeBtn').addEventListener('click',async()=>{if(!('wakeLock'in navigator)){diagnostic('error','Wake Lock no disponible.','Este navegador no ofrece la opción para mantener activa la pantalla.');return}try{if(wakeLock){await wakeLock.release();wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')}else{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')});$('wakeBtn').textContent='Mantener pantalla activa: sí';$('wakeBtn').setAttribute('aria-pressed','true')}}catch(e){diagnostic('error','No se pudo activar Wake Lock.','El navegador no permitió mantener activa la pantalla: '+(e?.message||e))}});
   $('downloadBtn').addEventListener('click',e=>{e.preventDefault();const source='<!doctype html>\n'+document.documentElement.outerHTML;const url=URL.createObjectURL(new Blob([source],{type:'text/html;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='index.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)});
   if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
