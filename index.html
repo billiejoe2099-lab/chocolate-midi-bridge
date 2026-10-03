@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#171a25">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.webmanifest">
   <title>Chocolate → HX Stomp | MIDI Bridge</title>
   <style>
     :root{color-scheme:dark;--bg:#10121a;--surface:#1b1e2a;--surface2:#232737;--text:#f1f0fa;--muted:#b8b8c9;--line:#393d50;--primary:#c7c0ff;--onprimary:#211d3b;--green:#79e2b0;--yellow:#ffd27b;--red:#ff9c9c;--radius:24px}
@@ -19,26 +21,27 @@
   <header class="hero">
     <div class="eyebrow">Herramienta de prueba MIDI</div>
     <h1>Chocolate <span style="color:var(--primary)">→</span> HX Stomp</h1>
-    <p>Puente MIDI transparente en el navegador: reenvía cada mensaje recibido sin cambiar sus bytes. La compatibilidad depende de que Android y el navegador expongan ambos equipos como puertos MIDI.</p>
-    <div class="route"><span class="chip">M‑VAVE Chocolate Plus · MIDI IN</span><span class="arrow">→</span><span class="chip">Line 6 HX Stomp · MIDI OUT</span></div>
+    <p>Puente MIDI en el navegador: recibe el Chocolate Plus como USB‑MIDI o BLE‑MIDI estándar y envía sus mensajes a la salida USB de HX Stomp. Por Bluetooth, Chrome selecciona el pedal y la app decodifica el transporte BLE antes de reenviar los mensajes MIDI.</p>
+    <div class="route"><span class="chip">M‑VAVE Chocolate Plus · USB o BLE‑MIDI IN</span><span class="arrow">→</span><span class="chip">Line 6 HX Stomp · MIDI OUT</span></div>
   </header>
   <div class="grid">
     <section class="card">
       <h2>Conexión</h2>
       <div class="status-list">
         <div class="status"><i class="dot" id="apiDot"></i><span id="apiStatus">Comprobando Web MIDI…</span></div>
+        <div class="status"><i class="dot" id="bleDot"></i><span id="bleStatus">Chocolate Plus Bluetooth desconectado</span></div>
         <div class="status"><i class="dot" id="bridgeDot"></i><span id="bridgeStatus">Puente desconectado</span></div>
       </div>
-      <label for="inputSelect">Entrada MIDI · Chocolate Plus</label><select id="inputSelect" aria-label="Entrada MIDI"><option value="">Solicita acceso MIDI para enumerar</option></select>
+      <label for="inputSelect">Entrada MIDI por USB (opcional si usas Bluetooth)</label><select id="inputSelect" aria-label="Entrada MIDI USB"><option value="">Solicita acceso MIDI para enumerar</option></select>
       <label for="outputSelect">Salida MIDI · HX Stomp</label><select id="outputSelect" aria-label="Salida MIDI"><option value="">Solicita acceso MIDI para enumerar</option></select>
-      <p class="hint" id="selectionHint">Los dispositivos sugeridos se seleccionan por nombre; puedes cambiarlos manualmente.</p>
-      <div class="buttons"><button class="primary" id="connectBtn">Solicitar acceso MIDI</button><button class="secondary" id="disconnectBtn" disabled>Desconectar</button><button class="secondary" id="wakeBtn" aria-pressed="false">Mantener pantalla activa: no</button></div>
+      <p class="hint" id="selectionHint">Para USB, el navegador debe mostrar Chocolate Plus como entrada. Para Bluetooth, conéctalo con el botón dedicado de abajo.</p>
+      <div class="buttons"><button class="primary" id="connectBtn">Solicitar acceso MIDI</button><button class="secondary" id="bleBtn">Conectar Chocolate Plus por Bluetooth</button><button class="secondary" id="disconnectBtn" disabled>Desconectar puente</button><button class="secondary" id="wakeBtn" aria-pressed="false">Mantener pantalla activa: no</button></div>
     </section>
     <section class="card">
       <h2>Diagnóstico</h2>
       <div class="diag" id="diagnostic" role="status" aria-live="polite"><strong>Preparando diagnóstico.</strong> Esta página comprobará si Web MIDI está disponible en este navegador.</div>
-      <p class="hint" style="margin-top:13px">Se solicita acceso MIDI estándar, sin SysEx. Si no aparece un equipo en las listas, el navegador no lo está ofreciendo como puerto MIDI.</p>
-      <p class="hint">No se emula HID/BLE ni se transforma el protocolo: esta página solo puede usar puertos entregados por Web MIDI.</p>
+      <p class="hint" style="margin-top:13px">Bluetooth usa Web Bluetooth y el perfil estándar BLE‑MIDI. El navegador pide seleccionar FootCtrlPlus; después la app extrae los mensajes MIDI del transporte BLE y los envía a la HX Stomp.</p>
+      <p class="hint">En el Chocolate Plus usa modo H y un modo MIDI PC/CC/Note (CubeSuite, modos 1–5). Los modos de teclado/pantalla táctil emiten teclas, no mensajes MIDI para la HX. Si FootCtrlPlus no aparece, deja el LED azul parpadeando, cierra CubeSuite y no lo emparejes desde Ajustes de Android: usa el selector de Chrome.</p>
     </section>
     <section class="card wide">
       <div class="monitor-head"><h2 style="margin:0">Monitor de mensajes</h2><button class="secondary smallbtn" id="clearBtn">Limpiar monitor</button></div>
@@ -47,7 +50,7 @@
     </section>
     <section class="card wide">
       <h2>Conexión y prueba</h2>
-      <ol class="steps"><li>Conecta el <strong>Galaxy S24 → adaptador USB‑C OTG → cable USB‑A a USB‑B → HX Stomp</strong>.</li><li>Enciende la HX Stomp. Conecta el Chocolate Plus al teléfono por USB si funciona como MIDI USB; si es Bluetooth, emparejarlo no garantiza que Chrome lo exponga como MIDI.</li><li>Abre esta página en un navegador Android compatible y con permiso MIDI. Pulsa <strong>Solicitar acceso MIDI</strong>, revisa el diagnóstico y elige manualmente la entrada y salida si hace falta.</li><li>Pulsa <strong>Conectar puente</strong> y acciona un pedal. Deben aumentar RX y TX; confirma que la HX Stomp responde según su asignación MIDI.</li></ol>
+      <ol class="steps"><li>Conecta el <strong>Galaxy S24 → adaptador USB‑C OTG → cable USB‑A a USB‑B → HX Stomp</strong> y enciende ambos equipos.</li><li>En el Chocolate Plus selecciona <strong>H</strong> (Bluetooth) y un modo que envíe PC, CC o Note. Deja el indicador Bluetooth parpadeando. Si CubeSuite está conectado, desconéctalo/cierra la app.</li><li>Concede acceso MIDI y selecciona la salida <strong>HX Stomp</strong>. Pulsa <strong>Conectar Chocolate Plus por Bluetooth</strong> y elige <strong>FootCtrlPlus</strong> en el selector de Chrome; no lo emparejes desde Ajustes de Android.</li><li>Cuando ambos estados estén conectados, pulsa <strong>Conectar puente</strong> y pisa un switch. RX debe mostrar el mensaje BLE‑MIDI decodificado y TX su envío a la HX Stomp.</li><li>Para uso sin datos: publica los archivos del paquete una vez en HTTPS, abre en Chrome, concede los permisos y usa <strong>⋮ → Instalar app</strong>. Luego la PWA puede abrirse offline, con Bluetooth y USB conectados.</li></ol>
       <p class="note">La pantalla activa ayuda durante una prueba corta, pero una página web puede quedar suspendida o dejar de ejecutarse al bloquear el teléfono. Para uso fiable en concierto puede hacer falta una app nativa.</p>
       <div class="buttons"><a class="linkbtn secondary smallbtn" href="#" id="downloadBtn" download="index.html">Descargar esta página</a></div>
     </section>
@@ -57,14 +60,17 @@
 <script>
 (()=>{
   const $=id=>document.getElementById(id), inputSel=$('inputSelect'), outputSel=$('outputSelect');
-  let access=null, activeInput=null, activeOutput=null, connected=false, wakeLock=null, rx=0, tx=0, errors=0, stateHandler=null;
+  let access=null, activeInput=null, activeOutput=null, connected=false, bridgeViaBluetooth=false, bleDevice=null, bleCharacteristic=null, bleReady=false, sysexBuffer=null, wakeLock=null, rx=0, tx=0, errors=0, stateHandler=null;
+  const BLE_MIDI_SERVICE='03b80e5a-ede8-4b33-a751-6ce34ec4c700', BLE_MIDI_CHARACTERISTIC='7772e5db-3868-4112-a1a9-f2669d106bf3';
   const names={input:/foot\s*ctrl\s*plus|chocolate|m[- ]?vave/i,output:/hx\s*stomp|line\s*6/i};
   function dot(id,kind){$(id).className='dot'+(kind?' '+kind:'')}
   function diagnostic(kind,title,body){const e=$('diagnostic');e.className='diag'+(kind?' '+kind:'');e.innerHTML='<strong></strong> '+body;e.querySelector('strong').textContent=title}
   function apiUnavailable(){dot('apiDot','bad');$('apiStatus').textContent='Web MIDI no está disponible';diagnostic('error','Web MIDI no disponible.','Este navegador o contexto no ofrece <code>navigator.requestMIDIAccess</code>. Prueba Chrome actualizado en Android y sirve la página por HTTPS. Sin Web MIDI no es posible crear este puente desde esta página.')}
   function markStatus(){
     const i=activeInput&&access?.inputs.get(activeInput.id), o=activeOutput&&access?.outputs.get(activeOutput.id);
-    if(connected&&i&&o&&i.state==='connected'&&o.state==='connected'){dot('bridgeDot','ok');$('bridgeStatus').textContent='Puente conectado · '+i.name+' → '+o.name;return}
+    if(bleReady){dot('bleDot','ok');$('bleStatus').textContent='Chocolate Plus conectado por BLE‑MIDI · '+(bleDevice?.name||'FootCtrlPlus')}else{dot('bleDot','');$('bleStatus').textContent='Chocolate Plus Bluetooth desconectado'}
+    const sourceOk=bridgeViaBluetooth?bleReady:!!(i&&i.state==='connected');
+    if(connected&&sourceOk&&o&&o.state==='connected'){dot('bridgeDot','ok');$('bridgeStatus').textContent='Puente conectado · '+(bridgeViaBluetooth?(bleDevice?.name||'FootCtrlPlus')+' BLE':i.name)+' → '+o.name;return}
     if(connected){stopBridge();diagnostic('error','Conexión interrumpida.','Uno de los dispositivos se desconectó. Vuelve a conectarlo, revisa las listas y pulsa conectar de nuevo.')}
     dot('bridgeDot','');$('bridgeStatus').textContent='Puente desconectado';
   }
@@ -79,18 +85,55 @@
   function refresh(){if(!access)return;listPorts(inputSel,[...access.inputs.values()],names.input,'input');listPorts(outputSel,[...access.outputs.values()],names.output,'output');if(connected){activeInput=access.inputs.get(inputSel.value)||null;activeOutput=access.outputs.get(outputSel.value)||null}markStatus()}
   function addEvent(direction,data,time){
     const monitor=$('monitor');if(monitor.querySelector('.empty'))monitor.replaceChildren();
-    const row=document.createElement('div');row.className='event';const t=document.createElement('span');t.className='time';t.textContent=new Date(time||Date.now()).toLocaleTimeString();const d=document.createElement('span');d.className='dir '+direction.toLowerCase();d.textContent=direction;const b=document.createElement('span');b.className='bytes';b.textContent=Array.from(data,x=>Number(x).toString(16).padStart(2,'0').toUpperCase()).join(' ');row.append(t,d,b);monitor.append(row);while(monitor.children.length>250)monitor.firstChild.remove();monitor.scrollTop=monitor.scrollHeight
+    const row=document.createElement('div');row.className='event';const t=document.createElement('span');t.className='time';t.textContent=new Date().toLocaleTimeString();const d=document.createElement('span');d.className='dir '+direction.toLowerCase();d.textContent=direction;const b=document.createElement('span');b.className='bytes';b.textContent=Array.from(data,x=>Number(x).toString(16).padStart(2,'0').toUpperCase()).join(' ');row.append(t,d,b);monitor.append(row);while(monitor.children.length>250)monitor.firstChild.remove();monitor.scrollTop=monitor.scrollHeight
   }
   function updateCounts(){$('rxCount').textContent=rx;$('txCount').textContent=tx;$('errCount').textContent=errors}
-  function onMIDIMessage(event){rx++;updateCounts();addEvent('RX',event.data,event.receivedTime);if(connected&&activeOutput){try{activeOutput.send(event.data);tx++;addEvent('TX',event.data,performance.now())}catch(e){errors++;diagnostic('error','Error al enviar MIDI.','No se pudo enviar el mensaje a la salida seleccionada: '+(e?.message||e));}updateCounts()}}
-  function stopBridge(){if(activeInput)activeInput.onmidimessage=null;connected=false;activeInput=null;activeOutput=null;$('disconnectBtn').disabled=true;$('connectBtn').disabled=!access;$('connectBtn').textContent=access?'Conectar puente':'Solicitar acceso MIDI';dot('bridgeDot','');$('bridgeStatus').textContent='Puente desconectado'}
-  function startBridge(){const i=access?.inputs.get(inputSel.value),o=access?.outputs.get(outputSel.value);if(!i||!o){diagnostic('error','Selecciona los dos puertos.','Elige una entrada MIDI de Chocolate Plus y una salida MIDI de HX Stomp.');return}if(i.state!=='connected'||o.state!=='connected'){diagnostic('error','Puerto no conectado.','Ambos dispositivos deben estar conectados antes de activar el puente.');return}if(i.id===o.id){diagnostic('error','Selecciona puertos distintos.','La entrada y salida seleccionadas parecen ser el mismo puerto.');return}activeInput=i;activeOutput=o;activeInput.onmidimessage=onMIDIMessage;connected=true;$('disconnectBtn').disabled=false;$('connectBtn').textContent='Puente conectado';$('connectBtn').disabled=true;dot('bridgeDot','ok');$('bridgeStatus').textContent='Puente conectado · '+i.name+' → '+o.name;diagnostic('success','Puente listo.','Los mensajes MIDI de la entrada se envían sin modificar a la salida. RX y TX cuentan mensajes, no bytes.')}
+  function forwardMIDI(data,time){rx++;updateCounts();addEvent('RX',data,time);if(connected&&activeOutput){try{activeOutput.send(data);tx++;addEvent('TX',data,performance.now())}catch(e){errors++;diagnostic('error','Error al enviar MIDI.','No se pudo enviar el mensaje a la salida seleccionada: '+(e?.message||e));}updateCounts()}}
+  function onMIDIMessage(event){forwardMIDI(event.data,event.receivedTime)}
+  function decodeBleMidi(view){
+    const a=Array.from(new Uint8Array(view.buffer,view.byteOffset,view.byteLength)), out=[];
+    if(a.length<2||(a[0]&128)===0){throw new Error('Paquete BLE‑MIDI inválido (falta cabecera).')}
+    let p=1, running=null;
+    if(sysexBuffer&&p<a.length&&(a[p]&128)===0){while(p<a.length){const b=a[p++];sysexBuffer.push(b);if(b===0xf7){out.push(sysexBuffer);sysexBuffer=null;break}}if(sysexBuffer)return out}
+    while(p<a.length){
+      if((a[p]&128)===0)throw new Error('Falta timestamp BLE‑MIDI entre mensajes.');
+      p++;if(p>=a.length)break;
+      let status=a[p];
+      if(status&128){p++;if(status>=0x80&&status<=0xef)running=status;else if(status<0xf8)running=null}
+      else if(running!==null)status=running;else throw new Error('Mensaje MIDI BLE sin estado inicial.');
+      if(status===0xf0){const msg=[0xf0];let ended=false;while(p<a.length){const b=a[p++];msg.push(b);if(b===0xf7){ended=true;break}}if(ended)out.push(msg);else sysexBuffer=msg;continue}
+      if(status>=0xf8){out.push([status]);continue}
+      let count;if(status>=0x80&&status<=0xef)count=((status&0xe0)===0xc0?1:2);else if(status===0xf1||status===0xf3)count=1;else if(status===0xf2)count=2;else if(status===0xf6||status===0xf7)count=0;else throw new Error('Estado MIDI BLE no reconocido: 0x'+status.toString(16));
+      const msg=[status];
+      while(count--){if(p>=a.length||(a[p]&128))throw new Error('Mensaje MIDI BLE incompleto.');msg.push(a[p++])}out.push(msg)
+    }
+    return out;
+  }
+  function onBlePacket(event){try{for(const msg of decodeBleMidi(event.target.value))forwardMIDI(Uint8Array.from(msg),performance.now())}catch(e){errors++;updateCounts();diagnostic('error','No se pudo decodificar BLE‑MIDI.',(e?.message||e)+' Comprueba que el Chocolate Plus envíe PC, CC o Note desde un modo MIDI.')}}
+  async function connectChocolateBluetooth(){
+    if(!navigator.bluetooth?.requestDevice){diagnostic('error','Web Bluetooth no está disponible.','Abre esta página en Chrome para Android desde HTTPS o desde la app web instalada. El archivo local puede no exponer Bluetooth al navegador.');return}
+    try{
+      $('bleBtn').disabled=true;diagnostic('','Buscando Chocolate Plus.','En el selector Bluetooth de Chrome elige FootCtrlPlus. Pon el pedal en H y deja parpadear su indicador azul.');
+      const device=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'FootCtrlPlus'},{namePrefix:'footctrlplus'},{namePrefix:'Chocolate'}],optionalServices:[BLE_MIDI_SERVICE]});
+      bleDevice=device;device.addEventListener('gattserverdisconnected',()=>{bleReady=false;bleCharacteristic=null;sysexBuffer=null;$('bleBtn').disabled=false;$('bleBtn').textContent='Conectar Chocolate Plus por Bluetooth';dot('bleDot','');$('bleStatus').textContent='Chocolate Plus Bluetooth desconectado';if(connected&&bridgeViaBluetooth)stopBridge();else markStatus()});
+      const server=await device.gatt.connect();
+      const service=await server.getPrimaryService(BLE_MIDI_SERVICE);
+      const characteristic=await service.getCharacteristic(BLE_MIDI_CHARACTERISTIC);
+      if(!characteristic.properties.notify)throw new Error('El puerto BLE‑MIDI no permite notificaciones de entrada.');
+      await characteristic.startNotifications();characteristic.addEventListener('characteristicvaluechanged',onBlePacket);
+      if(characteristic.properties.read){try{await characteristic.readValue()}catch(_){}}
+      bleCharacteristic=characteristic;bleReady=true;sysexBuffer=null;$('bleBtn').disabled=false;$('bleBtn').textContent='Desconectar Chocolate Plus Bluetooth';dot('bleDot','ok');$('bleStatus').textContent='Chocolate Plus conectado por BLE‑MIDI · '+(device.name||'FootCtrlPlus');diagnostic('success','Chocolate Plus conectado por Bluetooth.','BLE‑MIDI activo. Selecciona la salida HX Stomp y pulsa Conectar puente; el pedal debe estar configurado para transmitir MIDI, no teclado/HID.');markStatus();
+    }catch(e){if(bleDevice?.gatt?.connected)bleDevice.gatt.disconnect();bleReady=false;bleCharacteristic=null;$('bleBtn').disabled=false;$('bleBtn').textContent='Conectar Chocolate Plus por Bluetooth';const n=e?.name||'Error',m=e?.message||'sin detalle';let tip='';if(n==='NotFoundError')tip='Se canceló el selector o Chrome no encontró FootCtrlPlus. Pon el switch del pedal en H, deja el LED azul parpadeando y cierra CubeSuite.';else if(n==='SecurityError'||n==='NotAllowedError')tip='Web Bluetooth requiere que se abra en Chrome desde HTTPS (o una app HTTPS instalada) y que Bluetooth esté encendido.';else if(n==='NetworkError'||n==='NotSupportedError')tip='Chrome encontró el dispositivo, pero no pudo abrir el servicio BLE‑MIDI estándar. Desconecta CubeSuite y revisa que sea el Chocolate Plus en modo H.';else tip='Revisa que el pedal esté en modo H, disponible y sin CubeSuite conectado.';diagnostic('error','No se conectó FootCtrlPlus ('+n+').',tip+' Detalle: '+m)}
+  }
+  function stopBridge(){if(activeInput)activeInput.onmidimessage=null;connected=false;bridgeViaBluetooth=false;activeInput=null;activeOutput=null;$('disconnectBtn').disabled=true;$('connectBtn').disabled=!access;$('connectBtn').textContent=access?'Conectar puente':'Solicitar acceso MIDI';dot('bridgeDot','');$('bridgeStatus').textContent='Puente desconectado'}
+  function startBridge(){const i=access?.inputs.get(inputSel.value),o=access?.outputs.get(outputSel.value);if(!access||!o){diagnostic('error','Selecciona la salida MIDI.','Solicita acceso MIDI y elige la salida HX Stomp.');return}if(o.state!=='connected'){diagnostic('error','La HX Stomp no está conectada.','Conecta la HX Stomp por USB al S24 y vuelve a solicitar acceso MIDI.');return}if(!bleReady&&(!i||i.state!=='connected')){diagnostic('error','Conecta una entrada de Chocolate Plus.','Pulsa «Conectar Chocolate Plus por Bluetooth» y elige FootCtrlPlus, o selecciona una entrada Chocolate Plus por USB.');return}if(!bleReady&&i.id===o.id){diagnostic('error','Selecciona puertos distintos.','La entrada y salida seleccionadas parecen ser el mismo puerto.');return}activeInput=bleReady?null:i;activeOutput=o;bridgeViaBluetooth=bleReady;if(activeInput)activeInput.onmidimessage=onMIDIMessage;connected=true;$('disconnectBtn').disabled=false;$('connectBtn').textContent='Puente conectado';$('connectBtn').disabled=true;dot('bridgeDot','ok');$('bridgeStatus').textContent='Puente conectado · '+(bleReady?(bleDevice?.name||'FootCtrlPlus')+' BLE':i.name)+' → '+o.name;diagnostic('success','Puente listo.','Los mensajes MIDI recibidos se decodifican del transporte BLE‑MIDI (si aplica) y se envían a la HX Stomp. RX/TX cuentan mensajes MIDI.')}
   async function requestAccess(){if(!navigator.requestMIDIAccess){apiUnavailable();return}try{access=await navigator.requestMIDIAccess();dot('apiDot','ok');$('apiStatus').textContent='Web MIDI disponible · acceso concedido';$('connectBtn').textContent='Conectar puente';$('connectBtn').disabled=false;diagnostic('success','Acceso MIDI concedido.','Revisa las listas de entrada y salida. Los equipos detectados por nombre se sugieren automáticamente; puedes cambiar la selección.');refresh();if(stateHandler)access.removeEventListener('statechange',stateHandler);stateHandler=()=>{refresh();if(connected)markStatus()};access.addEventListener('statechange',stateHandler)}catch(e){dot('apiDot','bad');$('apiStatus').textContent='Solicitud MIDI bloqueada o fallida';const name=e?.name||'Error',detail=(e?.message||'sin detalle del navegador').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let advice='';if(name==='NotAllowedError'||name==='PermissionDeniedError')advice='Chrome no concedió el permiso. Abre esta página directamente en Chrome (no dentro de otra app), toca el icono junto a la dirección → Permisos del sitio → MIDI y elige Permitir; después recarga la página.';else if(name==='SecurityError')advice='El navegador bloqueó MIDI por el contexto de seguridad o la política del sitio. Publica/abre esta página con HTTPS y prueba en una pestaña normal de Chrome.';else if(name==='NotSupportedError')advice='Este navegador o esta versión no ofrece MIDI en este contexto. Actualiza Chrome y vuelve a abrir la página directamente en Chrome.';else advice='Prueba esta página desde una URL HTTPS en una pestaña normal de Chrome y revisa los permisos MIDI del sitio.';diagnostic('error','No se obtuvo acceso MIDI ('+name+').',advice+' Detalle informado por el navegador: '+detail)}}
-  $('connectBtn').addEventListener('click',()=>access?startBridge():requestAccess());$('disconnectBtn').addEventListener('click',()=>{stopBridge();diagnostic('','Puente desconectado.','La entrada ya no se reenvía. El acceso MIDI sigue disponible para volver a conectar.')});
+  $('connectBtn').addEventListener('click',()=>access?startBridge():requestAccess());$('bleBtn').addEventListener('click',()=>{if(bleDevice?.gatt?.connected){if(connected&&bridgeViaBluetooth)stopBridge();bleDevice.gatt.disconnect()}else connectChocolateBluetooth()});$('disconnectBtn').addEventListener('click',()=>{stopBridge();diagnostic('','Puente desconectado.','La entrada ya no se reenvía. Los enlaces USB/Bluetooth siguen disponibles para volver a conectar el puente.')});
   inputSel.addEventListener('change',()=>{if(connected)stopBridge();activeInput=access?.inputs.get(inputSel.value)||null});outputSel.addEventListener('change',()=>{if(connected)stopBridge();activeOutput=access?.outputs.get(outputSel.value)||null});
   $('clearBtn').addEventListener('click',()=>{$('monitor').innerHTML='<div class="empty">Monitor limpio. Los próximos mensajes aparecerán aquí.</div>';rx=tx=errors=0;updateCounts()});
   $('wakeBtn').addEventListener('click',async()=>{if(!('wakeLock'in navigator)){diagnostic('error','Wake Lock no disponible.','Este navegador no ofrece la opción para mantener activa la pantalla.');return}try{if(wakeLock){await wakeLock.release();wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')}else{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')});$('wakeBtn').textContent='Mantener pantalla activa: sí';$('wakeBtn').setAttribute('aria-pressed','true')}}catch(e){diagnostic('error','No se pudo activar Wake Lock.','El navegador no permitió mantener activa la pantalla: '+(e?.message||e))}});
   $('downloadBtn').addEventListener('click',e=>{e.preventDefault();const source='<!doctype html>\n'+document.documentElement.outerHTML;const url=URL.createObjectURL(new Blob([source],{type:'text/html;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='index.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)});
+  if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
   if(!navigator.requestMIDIAccess)apiUnavailable();else{dot('apiDot','warn');$('apiStatus').textContent='Web MIDI disponible; falta conceder acceso';diagnostic('','Listo para solicitar permiso.','Pulsa <strong>Solicitar acceso MIDI</strong> para pedir permiso y enumerar los puertos disponibles.')}
 })();
 </script>
