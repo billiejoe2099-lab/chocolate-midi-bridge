@@ -142,7 +142,28 @@
   window.addEventListener('appinstalled',()=>{$('installBtn').hidden=true;installPrompt=null;dot('pwaDot','ok');$('pwaStatus').textContent='App instalada · lista para abrirse sin conexión'});
   $('wakeBtn').addEventListener('click',async()=>{if(!('wakeLock'in navigator)){diagnostic('error','Wake Lock no disponible.','Este navegador no ofrece la opción para mantener activa la pantalla.');return}try{if(wakeLock){await wakeLock.release();wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')}else{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').textContent='Mantener pantalla activa: no';$('wakeBtn').setAttribute('aria-pressed','false')});$('wakeBtn').textContent='Mantener pantalla activa: sí';$('wakeBtn').setAttribute('aria-pressed','true')}}catch(e){diagnostic('error','No se pudo activar Wake Lock.','El navegador no permitió mantener activa la pantalla: '+(e?.message||e))}});
   $('downloadBtn').addEventListener('click',e=>{e.preventDefault();const source='<!doctype html>\n'+document.documentElement.outerHTML;const url=URL.createObjectURL(new Blob([source],{type:'text/html;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='index.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)});
-  async function checkOfflineInstall(){if(!location.protocol.startsWith('http')){dot('pwaDot','bad');$('pwaStatus').textContent='Abre esta versión desde la URL HTTPS de GitHub Pages, no desde file://';return}try{const manifestLink=document.querySelector('link[rel="manifest"]');if(!manifestLink)throw new Error('Falta link al manifiesto');const mr=await fetch(manifestLink.href,{cache:'no-store'});if(!mr.ok)throw new Error('manifest.webmanifest respondió HTTP '+mr.status);const manifest=await mr.json();for(const size of ['192x192','512x512']){const icon=manifest.icons?.find(item=>item.sizes===size);if(!icon)throw new Error('El manifiesto no declara icono '+size);const ir=await fetch(new URL(icon.src,manifestLink.href),{cache:'no-store'});if(!ir.ok)throw new Error('Falta '+icon.src+' (HTTP '+ir.status+')')}const swr=await fetch('./sw.js',{cache:'no-store'});if(!swr.ok)throw new Error('sw.js respondió HTTP '+swr.status);if(!('serviceWorker'in navigator))throw new Error('Este navegador no admite service worker');await navigator.serviceWorker.register('./sw.js');await navigator.serviceWorker.ready;dot('pwaDot','ok');$('pwaStatus').textContent='Manifiesto, iconos y caché offline cargados · Chrome puede tardar en habilitar Instalar app';if(installPrompt){$('installBtn').hidden=false;$('pwaStatus').textContent='Chrome habilitó la instalación · pulsa Instalar app'}}catch(e){dot('pwaDot','bad');$('pwaStatus').textContent='PWA incompleta: '+(e?.message||e)+' · publica juntos todos los archivos del paquete y recarga'}}
+  async function checkOfflineInstall(){
+    const status=$('pwaStatus');
+    const setStep=(message)=>{status.textContent=message;dot('pwaDot','warn')};
+    const timed=async(promise,label,ms=10000)=>{let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label)),ms)})])}finally{clearTimeout(timer)}};
+    if(!location.protocol.startsWith('http')){dot('pwaDot','bad');status.textContent='Abre esta versión desde la URL HTTPS de GitHub Pages, no desde file://';return}
+    try{
+      setStep('Comprobando manifiesto…');
+      const manifestLink=document.querySelector('link[rel="manifest"]');if(!manifestLink)throw new Error('Falta link al manifiesto');
+      const mr=await timed(fetch(manifestLink.href,{cache:'no-store'}),'El manifiesto no respondió a tiempo');if(!mr.ok)throw new Error('manifest.webmanifest respondió HTTP '+mr.status);
+      const manifest=await mr.json();
+      for(const size of ['192x192','512x512']){setStep('Comprobando icono '+size+'…');const icon=manifest.icons?.find(item=>item.sizes===size);if(!icon)throw new Error('El manifiesto no declara icono '+size);const ir=await timed(fetch(new URL(icon.src,manifestLink.href),{cache:'no-store'}),'El icono '+size+' no respondió');if(!ir.ok)throw new Error('Falta '+icon.src+' (HTTP '+ir.status+')')}
+      setStep('Comprobando service worker…');
+      const swr=await timed(fetch('./sw.js',{cache:'no-store'}),'sw.js no respondió a tiempo');if(!swr.ok)throw new Error('sw.js respondió HTTP '+swr.status);
+      if(!('serviceWorker'in navigator))throw new Error('Este navegador no admite service worker');
+      const registration=await timed(navigator.serviceWorker.register('./sw.js'),'El navegador tardó demasiado al registrar el service worker');
+      setStep('Guardando archivos para uso sin conexión…');
+      const active=registration.active||await timed(navigator.serviceWorker.ready,'El service worker no se activó en 10 s. Revisa que GitHub Pages haya publicado juntos index.html, sw.js, manifiesto e iconos.');
+      if(!active)throw new Error('No se activó el service worker');
+      dot('pwaDot','ok');status.textContent='Manifiesto, iconos y archivos offline listos';
+      if(installPrompt){$('installBtn').hidden=false;status.textContent='Chrome habilitó la instalación · pulsa Instalar app'}
+    }catch(e){dot('pwaDot','bad');status.textContent='No se completó la instalación offline: '+(e?.message||e)+' · publica juntos todos los archivos del paquete y recarga'}
+  }
   checkOfflineInstall();
   if(!navigator.requestMIDIAccess)apiUnavailable();else{dot('apiDot','warn');$('apiStatus').textContent='Web MIDI disponible; falta conceder acceso';diagnostic('','Listo para solicitar permiso.','Pulsa <strong>Solicitar acceso MIDI</strong> para pedir permiso y enumerar los puertos disponibles.')}
 })();
